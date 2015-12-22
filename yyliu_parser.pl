@@ -88,7 +88,8 @@ $p->parse_file($ARGV[0]);
 
 use Data::ICal;
 use Data::ICal::Entry::Event;
-use Date::ICal;
+use DateTime;
+use DateTime::Format::ICal;
 
 my $calendar = Data::ICal->new();
 for my $orig_date (keys %{ $schedule }) {
@@ -102,22 +103,26 @@ for my $orig_date (keys %{ $schedule }) {
 	my $event = Data::ICal::Entry::Event->new();
 	$event->add_properties(
 			summary => "NTHU meeting prensenter: " . join(', ', @prensenter_list) ,
-			dtstart => Date::ICal->new(
-				year => $yyyy,
-				month => $mm,
-				day => $dd,
-				hour => $starthh,
-				min => 0,
-				sec => 0,
-				offset => "+0800")->ical,
-			dtend => Date::ICal->new(
-				year => $yyyy,
-				month => $mm,
-				day => $dd,
-				hour => $endhh,
-				min => 0,
-				sec => 0,
-				offset => "+0800")->ical,
+			dtstart => DateTime::Format::ICal->format_datetime(
+				DateTime->new(
+					year => $yyyy,
+					month => $mm,
+					day => $dd,
+					hour => $starthh,
+					minute => 0,
+					second => 0,
+					offset => "+0800")
+				),
+			dtend => DateTime::Format::ICal->format_datetime(
+				DateTime->new(
+					year => $yyyy,
+					month => $mm,
+					day => $dd,
+					hour => $endhh,
+					minute => 0,
+					second => 0,
+					offset => "+0800")
+				),
 			);
 	$calendar->add_entry($event);
 }
