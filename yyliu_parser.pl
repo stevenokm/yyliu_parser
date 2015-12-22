@@ -81,15 +81,25 @@ sub end {
     #print "/$tag:\t$origtext";
 }
 
-my $p = new IdentityParse;
-$p->parse_file($ARGV[0]);
+open(my $fh, '<', $ARGV[0]) or die "Couldn't open file: $!";
+my @content = <$fh>;
+close $fh;
 
+use HTTP::Response;
+use HTTP::Headers;
+
+my $mess = HTTP::Response->parse(join('', @content));
+#print Dumper($mess);
+
+my $p = new IdentityParse;
+$p->parse($mess->content);
 #print Dumper($schedule);
 
 use Data::ICal;
 use Data::ICal::Entry::Event;
 use DateTime;
 use DateTime::Format::ICal;
+use DateTime::Format::HTTP;
 
 my $calendar = Data::ICal->new();
 for my $orig_date (keys %{ $schedule }) {
@@ -103,6 +113,7 @@ for my $orig_date (keys %{ $schedule }) {
 	my $event = Data::ICal::Entry::Event->new();
 	$event->add_properties(
 			summary => "NTHU meeting prensenter: " . join(', ', @prensenter_list) ,
+			description => "NTHU meeting prensenter: " . join(', ', @prensenter_list) ,
 			dtstart => DateTime::Format::ICal->format_datetime(
 				DateTime->new(
 					year => $yyyy,
@@ -123,13 +134,20 @@ for my $orig_date (keys %{ $schedule }) {
 					second => 0,
 					time_zone => 'Asia/Taipei')
 				),
+			created => DateTime::Format::ICal->format_datetime(
+				DateTime::Format::HTTP->parse_datetime($mess->header('Last-modified'))
+				),
+			'last-modified' => DateTime::Format::ICal->format_datetime(
+				DateTime::Format::HTTP->parse_datetime($mess->header('Date'))
+				),
 			);
 	$calendar->add_entry($event);
 }
 $calendar->add_properties(
 		calscale => 'GREGORIAN',
 		method => 'PUBLISH',
-		'X-WR-CALNAME' => 'Prensentation Schedule'
+		'X-WR-CALNAME' => 'Prensentation Schedule',
+		'X-WR-TIMEZONE' => 'Asia/Taipei',
 		);
 
 print $calendar->as_string;
