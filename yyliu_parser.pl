@@ -111,7 +111,7 @@ for my $orig_date (keys %{ $schedule }) {
 					hour => $starthh,
 					minute => 0,
 					second => 0,
-					time_zone => "+0800")
+					time_zone => 'Asia/Taipei')
 				),
 			dtend => DateTime::Format::ICal->format_datetime(
 				DateTime->new(
@@ -121,7 +121,7 @@ for my $orig_date (keys %{ $schedule }) {
 					hour => $endhh,
 					minute => 0,
 					second => 0,
-					time_zone => "+0800")
+					time_zone => 'Asia/Taipei')
 				),
 			);
 	$calendar->add_entry($event);
