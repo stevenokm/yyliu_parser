@@ -104,6 +104,9 @@ use DateTime::Format::HTTP;
 my $calendar = Data::ICal->new();
 for my $orig_date (keys %{ $schedule }) {
 	my ($yyyy, $mm, $dd) = ($orig_date =~ /(\d+)\/(\d+)\/(\d+)*/);
+	if ( !(length $yyyy) || !(length $mm) || !(length $dd)) {
+		next;
+	}
 	#print "**$yyyy/$mm/$dd\n";
 	my @prensenter_list;
 	foreach my $prensenter (@{ $schedule->{$orig_date} }) {
